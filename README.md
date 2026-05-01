@@ -1,53 +1,50 @@
 # AI Auto Closer (Lofty Companion)
 
-This is **not a replacement CRM**.
-It is a lightweight helper you can run daily with a CSV export from **Lofty CRM** to decide who to follow up with, what to do, and what to text.
+This is a **daily follow-up helper** for your existing Lofty CRM workflow.
+It does not replace Lofty.
 
-## What it does
+## What this gives you every day
 
-1. **Daily follow-up priority list**: ranks leads by urgency.
-2. **Lead scoring**: combines motivation, engagement, and recency into a 0–100 score.
-3. **Natural text drafts**: gives conversational SMS drafts for each lead.
-4. **Daily action suggestions**: outputs a short action plan for the day.
+1. A ranked follow-up list (`daily_followup_priority.csv`)
+2. Lead scoring (0–100) based on motivation + activity + recency
+3. Natural text message drafts (`daily_text_drafts.csv`)
+4. A short daily action plan in your terminal
 
-## Files
+## Input format (from Lofty export)
 
-- `lead_assistant.py` — main script.
-- `leads_example.csv` — sample data in the expected format.
+Required columns:
+- `name`
+- `phone`
+- `stage`
+- `motivation` (0–10)
+- `last_contact_date` (prefer `YYYY-MM-DD`; `MM/DD/YYYY` accepted)
+- `touches_7d`
+- `property_views_7d`
+- `replied_30d` (`yes/no`)
+- `preferred_area`
+- `notes`
 
-## Quick start
+## Run it
 
 ```bash
-python3 lead_assistant.py --input leads_example.csv --top 5
+python3 lead_assistant.py --input leads_example.csv --top 5 --output-dir ./out
 ```
 
-## Lofty workflow (simple)
+Optional run date (helpful for backtesting):
 
-1. In Lofty, export your leads to CSV (daily or every morning).
-2. Ensure columns match this format:
-   - `name`
-   - `phone`
-   - `stage`
-   - `motivation` (0-10)
-   - `last_contact_date` (`YYYY-MM-DD` preferred)
-   - `touches_7d`
-   - `property_views_7d`
-   - `replied_30d` (`yes/no`)
-   - `preferred_area`
-   - `notes`
-3. Run the script against that export.
-4. Copy top message drafts into Lofty SMS, send, and log outcomes in Lofty.
+```bash
+python3 lead_assistant.py --input leads_example.csv --date 2026-05-01
+```
 
-## Customize scoring quickly
+## Daily Lofty workflow
 
-In `lead_assistant.py`, edit `score_lead()`:
-- Increase motivation weight for higher-intent pipelines.
-- Increase inactivity points if you want tighter follow-up cadence.
-- Add or tune stage bonuses (`hot`, `touring`, etc.).
+1. Export leads from Lofty to CSV.
+2. Run this script.
+3. Open `daily_followup_priority.csv` to see who to contact first.
+4. Copy/paste from `daily_text_drafts.csv` into Lofty SMS.
+5. Log replies and outcomes back in Lofty.
 
-## Why this is useful
+## Notes
 
-You keep **Lofty as source of truth** while adding a simple daily assistant that:
-- tells you who to contact first,
-- gives you message starting points,
-- and keeps your daily follow-up execution focused.
+- If required columns are missing, the script clearly tells you what is missing.
+- Scoring logic is in `score_lead()` inside `lead_assistant.py`.
